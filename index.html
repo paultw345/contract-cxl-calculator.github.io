@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國外旅遊定型化契約取消費計算機</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #0c0c0e;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+        h1 {
+            font-size: 26px;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+        
+        /* 操作與摘要面板 */
+        .control-panel {
+            border: 1px solid #2d2d34;
+            border-radius: 8px;
+            padding: 24px;
+            background-color: #141417;
+            margin-bottom: 24px;
+        }
+        
+        /* 橫向摘要數據 (改為 4 欄) */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            text-align: center;
+            border-bottom: 1px solid #2d2d34;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* 摘要列：無底線，純文字與數字 */
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .summary-item .label {
+            font-size: 13px;
+            color: #8e8e93;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        .summary-item .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            display: inline-block;
+            min-width: 60px;
+        }
+        
+        /* 輸入欄位兩行兩列 */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            row-gap: 16px;
+            column-gap: 24px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-size: 14px;
+            color: #aeaeae;
+            margin-bottom: 8px;
+        }
+        .input-group input {
+            background-color: #1c1c1e;
+            border: 1px solid #2d2d34;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+            color-scheme: dark;
+        }
+        .input-group input:focus {
+            border-color: #3b82f6;
+        }
+        
+        /* 表格通用樣式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 28px;
+            background-color: #141417;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 18px 16px;
+            text-align: left;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        th {
+            color: #8e8e93;
+            font-weight: normal;
+            border-bottom: 1px solid #2d2d34;
+            background-color: #141417;
+            padding: 14px 16px;
+        }
+        td {
+            border-bottom: 1px solid #1c1c1e;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .text-right {
+            text-align: right;
+        }
+        
+        /* 級距高亮 (藍色背景) */
+        .active-tier {
+            background-color: #1d4ed8 !important;
+            color: #ffffff !important;
+        }
+        
+        /* 交替背景色 */
+        .tier-table tr:nth-child(even),
+        .project-table tr:nth-child(even) {
+            background-color: #18181c;
+        }
+
+        /* 計算項目排版與顏色設定 */
+        .math-grid {
+            display: grid;
+            grid-template-columns: auto auto auto auto auto;
+            column-gap: 16px;
+            row-gap: 8px;
+            justify-content: start;
+            align-items: center;
+            padding: 4px 0;
+            overflow-x: auto; /* 在手機上若算式太長允許滑動 */
+        }
+        .m-text {
+            color: #ef4444; /* 紅色文字 */
+            font-size: 14px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .m-num {
+            color: #60a5fa; /* 藍色金額與算式 */
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* 手機版響應式設計 (RWD) */
+        @media (max-width: 600px) {
+            .summary-row {
+                grid-template-columns: 1fr 1fr; /* 手機上變為 2x2 排列 */
+                row-gap: 24px;
+            }
+            .input-grid {
+                grid-template-columns: 1fr; /* 手機上輸入框變為單行直排 */
+            }
+            body {
+                padding: 16px;
+            }
+            .control-panel {
+                padding: 16px;
+            }
+            th, td {
+                padding: 12px 10px;
+                font-size: 14px;
+            }
+            .m-text { font-size: 12px; }
+            .m-num { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>國外旅遊定型化契約取消費計算機</h1>
+    
+    <!-- 1. 操作與摘要面板 -->
+    <div class="control-panel">
+        <div class="summary-row">
+            <div class="summary-item">
+                <div class="label">取消天數差距</div>
+                <div class="value" id="sum-days">-- 天</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">契約級距比例</div>
+                <div class="value" id="sum-ratio">--%</div>
+            </div>
+            <!-- 已移除「應賠償違約金」摘要欄位 -->
+            <div class="summary-item">
+                <div class="label">總違約金額</div>
+                <div class="value" id="sum-total-cost">0 元</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">預計可退還旅客金額</div>
+                <div class="value" id="sum-refund">0 元</div>
+            </div>
+        </div>
+        
+        <div class="input-grid">
+            <div class="input-group">
+                <label for="total-fee">總團費 (元)</label>
+                <input type="number" id="total-fee" value="45000" min="0">
+            </div>
+            <div class="input-group">
+                <label for="vendor-cost">旅行社已支出費用 (元)</label>
+                <input type="number" id="vendor-cost" value="5000" min="0">
+            </div>
+            <div class="input-group">
+                <label for="start-date">出發日期</label>
+                <input type="date" id="start-date" value="2025-12-31">
+            </div>
+            <div class="input-group">
+                <label for="cancel-date">提出取消日期</label>
+                <input type="date" id="cancel-date" value="2025-12-01">
+            </div>
+        </div>
+    </div>
+    
+    <!-- 2. 計算項目表 -->
+    <table class="project-table">
+        <thead>
+            <tr>
+                <th>計算項目</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="tbl-base"></td>
+            </tr>
+            <tr>
+                <td id="tbl-penalty"></td>
+            </tr>
+            <tr>
+                <td id="tbl-total-cost"></td>
+            </tr>
+            <tr>
+                <td id="tbl-refund"></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <!-- 3. 取消時間(級距)表 -->
+    <table class="tier-table">
+        <thead>
+            <tr>
+                <th>取消時間(級距)</th>
+                <th class="text-right">賠償比例</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="tier-41">
+                <td>出發前 41 天以上</td>
+                <td class="text-right">5%</td>
+            </tr>
+            <tr id="tier-31-40">
+                <td>出發前 31 至 40 天</td>
+                <td class="text-right">10%</td>
+            </tr>
+            <tr id="tier-21-30">
+                <td>出發前 21 至 30 天</td>
+                <td class="text-right">20%</td>
+            </tr>
+            <tr id="tier-2-20">
+                <td>出發前 2 至 20 天</td>
+                <td class="text-right">30%</td>
+            </tr>
+            <tr id="tier-1">
+                <td>出發前 1 天</td>
+                <td class="text-right">50%</td>
+            </tr>
+            <tr id="tier-0">
+                <td>出發當日、開始後或未通知不參加者</td>
+                <td class="text-right">100%</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const totalFeeInput = document.getElementById('total-fee');
+    const vendorCostInput = document.getElementById('vendor-cost');
+    const startDateInput = document.getElementById('start-date');
+    const cancelDateInput = document.getElementById('cancel-date');
+
+    // 格式化數字加上千位逗號
+    function formatNumber(num) {
+        return new Intl.NumberFormat('en-US').format(num);
+    }
+
+    function calculate() {
+        const totalFee = parseFloat(totalFeeInput.value) || 0;
+        const vendorCost = parseFloat(vendorCostInput.value) || 0;
+        
+        const startDate = new Date(startDateInput.value);
+        const cancelDate = new Date(cancelDateInput.value);
+        
+        if (isNaN(startDate.getTime()) || isNaN(cancelDate.getTime())) {
+            return;
+        }
+        
+        // 忽略具體時分秒，精準計算相差天數
+        const diffTime = startDate.setHours(0,0,0,0) - cancelDate.setHours(0,0,0,0);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        let ratio = 0;
+        let activeId = '';
+        
+        // 判定級距
+        if (diffDays >= 41) { ratio = 0.05; activeId = 'tier-41'; } 
+        else if (diffDays >= 31 && diffDays <= 40) { ratio = 0.10; activeId = 'tier-31-40'; } 
+        else if (diffDays >= 21 && diffDays <= 30) { ratio = 0.20; activeId = 'tier-21-30'; } 
+        else if (diffDays >= 2 && diffDays <= 20) { ratio = 0.30; activeId = 'tier-2-20'; } 
+        else if (diffDays === 1) { ratio = 0.50; activeId = 'tier-1'; } 
+        else { ratio = 1.00; activeId = 'tier-0'; }
+        
+        // 核心計算邏輯
+        const base = Math.max(0, totalFee - vendorCost);
+        const penalty = Math.round(base * ratio);
+        
+        // 總違約金取「應賠償違約金」與「旅行社已支出費用」兩者中較高的一個
+        const totalCost = Math.max(penalty, vendorCost);
+        
+        // 可退還金額 = 總團費 - 最終收取的總違約金
+        const refund = Math.max(0, totalFee - totalCost);
+        
+        // 更新畫面數據 - 摘要列 (目前只剩4欄)
+        document.getElementById('sum-days').innerText = `${diffDays} 天`;
+        document.getElementById('sum-ratio').innerText = `${Math.round(ratio * 100)}%`;
+        document.getElementById('sum-total-cost').innerText = `${formatNumber(totalCost)} 元`;
+        document.getElementById('sum-refund').innerText = `${formatNumber(refund)} 元`;
+        
+        // 更新畫面數據 - 詳細計算過程表列 (文字在上方紅色，算式在下方藍色)
+        document.getElementById('tbl-base').innerHTML = `
+            <div class="math-grid">
+                <div class="m-text">總團費</div><div class="m-text">-</div><div class="m-text">旅行社已支出費用</div><div class="m-text">=</div><div class="m-text">基準</div>
+                <div class="m-num">${formatNumber(totalFee)} 元</div><div class="m-num">-</div><div class="m-num">${formatNumber(vendorCost)} 元</div><div class="m-num">=</div><div class="m-num">${formatNumber(base)} 元</div>
+            </div>`;
+        
+        document.getElementById('tbl-penalty').innerHTML = `
+            <div class="math-grid">
+                <div class="m-text">基準</div><div class="m-text">＊</div><div class="m-text">賠償比例</div><div class="m-text">=</div><div class="m-text">應賠償違約金</div>
+                <div class="m-num">${formatNumber(base)} 元</div><div class="m-num">＊</div><div class="m-num">${Math.round(ratio * 100)}%</div><div class="m-num">=</div><div class="m-num">${formatNumber(penalty)} 元</div>
+            </div>`;
+        
+        document.getElementById('tbl-total-cost').innerHTML = `
+            <div class="math-grid">
+                <div class="m-text">應賠償違約金</div><div class="m-text">與</div><div class="m-text">旅行社已支出費用</div><div class="m-text">取較高者 =</div><div class="m-text">總違約金額</div>
+                <div class="m-num">${formatNumber(penalty)} 元</div><div class="m-num">vs</div><div class="m-num">${formatNumber(vendorCost)} 元</div><div class="m-num">=&gt;</div><div class="m-num">${formatNumber(totalCost)} 元</div>
+            </div>`;
+        
+        document.getElementById('tbl-refund').innerHTML = `
+            <div class="math-grid">
+                <div class="m-text">總團費</div><div class="m-text">-</div><div class="m-text">總違約金額</div><div class="m-text">=</div><div class="m-text">預計可退還旅客金額</div>
+                <div class="m-num">${formatNumber(totalFee)} 元</div><div class="m-num">-</div><div class="m-num">${formatNumber(totalCost)} 元</div><div class="m-num">=</div><div class="m-num">${formatNumber(refund)} 元</div>
+            </div>`;
+        
+        // 移除所有高亮並套用到當前級距
+        ['tier-41', 'tier-31-40', 'tier-21-30', 'tier-2-20', 'tier-1', 'tier-0'].forEach(id => {
+            document.getElementById(id).classList.remove('active-tier');
+        });
+        if (activeId) {
+            document.getElementById(activeId).classList.add('active-tier');
+        }
+    }
+
+    // 綁定事件：一有變動即時計算
+    [totalFeeInput, vendorCostInput, startDateInput, cancelDateInput].forEach(el => {
+        el.addEventListener('input', calculate);
+    });
+
+    // 啟動時預設計算一次
+    calculate();
+</script>
+</body>
+</html>
